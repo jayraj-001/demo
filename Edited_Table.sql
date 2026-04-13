@@ -98,6 +98,103 @@ ALTER TABLE [dbo].[Products] ADD  DEFAULT ((0)) FOR [isDeleted]
 GO
 
 
+ALTER PROCEDURE [dbo].[sp_AddProducts]
+(
+@Name varchar(100),
+@Description varchar(255),
+@Category varchar(50),
+@Price decimal(10,2),
+@Rating decimal(3,2),
+@Stock int,
+@Brand varchar(50),
+@Images varchar(255)
+)
+AS 
+BEGIN
+INSERT INTO Products
+(Name,Description,Category,Price,Rating,Stock,Brand,Images)
+VALUES
+(@Name,@Description,@Category,@Price,@Rating,@Stock,@Brand,@Images)
+END;
+
+
+
+
+ALTER PROCEDURE [dbo].[sp_DeleteProducts]
+@ID INT
+AS 
+BEGIN
+UPDATE Products
+SET isDeleted = 1
+WHERE ID = @ID
+END;
+
+
+ALTER PROCEDURE [dbo].[sp_GetAllProducts]
+AS
+BEGIN
+SELECT 
+P.ID,
+P.Name,
+P.Description,
+P.Category,
+P.Price,
+P.Rating,
+P.Stock,
+P.Brand,
+P.Images
+ FROM Products AS P
+ WHERE P.isDeleted=0;
+ END
+
+
+ ALTER PROCEDURE [dbo].[sp_GetProductsById]
+@ID int
+AS
+BEGIN
+SELECT 
+P.ID,
+P.Name,
+P.Description,
+P.Category,
+P.Price,
+P.Rating,
+P.Stock,
+P.Brand,
+P.Images
+ FROM Products AS P
+ WHERE ID = @ID
+ AND P.isDeleted = 0;
+ END
+
+
+ ALTER PROCEDURE [dbo].[sp_UpdateProducts]
+(
+@ID INT,
+@Name VARCHAR(50),
+@Description VARCHAR(255),
+@Category VARCHAR(50),
+@Price DECIMAL(10,2),
+@Rating DECIMAL(3,2),
+@Stock INT,
+@Brand VARCHAR(50),
+@Images VARCHAR(255)
+)
+AS 
+BEGIN
+UPDATE Products
+SET 
+Name = @Name,
+Description=@Description,
+Category=@Category,
+Price=@Price,
+Rating=@Rating,
+Stock=@Stock,
+Brand=@Brand,
+Images = ISNULL(@Images, Images)
+WHERE ID = @ID
+AND isDeleted = 0;
+END;
 
 
 

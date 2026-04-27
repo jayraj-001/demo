@@ -1,4 +1,4 @@
-1) Product table
+﻿1) Product table
 USE [ecomDB]
 GO
 
@@ -473,3 +473,92 @@ WHERE ReviewId < 3030
 
 ALTER TABLE Reviews
 ADD isDeleted BIT DEFAULT 0;
+
+
+
+
+
+select * from Products
+select * from Users
+select * from Carts
+select * from Reviews
+
+
+
+CREATE TABLE Wishlists (
+    WishlistId INT IDENTITY(1,1) PRIMARY KEY,
+
+    UserId INT NOT NULL,
+    ProductId INT NOT NULL,
+
+    Created_At DATETIME NOT NULL DEFAULT GETDATE(),
+
+    -- 🔗 Foreign Keys
+    CONSTRAINT FK_Wishlist_User 
+        FOREIGN KEY (UserId) REFERENCES Users(UserId)
+        ON DELETE CASCADE,
+
+    CONSTRAINT FK_Wishlist_Product 
+        FOREIGN KEY (ProductId) REFERENCES Products(ProductId)
+        ON DELETE CASCADE,
+
+    -- 🚫 Prevent duplicate wishlist items
+    CONSTRAINT UQ_User_Product_Wishlist 
+        UNIQUE (UserId, ProductId)
+);
+
+
+
+
+CREATE PROCEDURE sp_AddToWishlist
+    @UserId INT,
+    @ProductId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Prevent duplicate
+    IF NOT EXISTS (
+        SELECT 1 FROM Wishlists 
+        WHERE UserId = @UserId AND ProductId = @ProductId
+    )
+    BEGIN
+        INSERT INTO Wishlists (UserId, ProductId)
+        VALUES (@UserId, @ProductId);
+    END
+END
+
+
+CREATE PROCEDURE sp_RemoveFromWishlist
+    @UserId INT,
+    @ProductId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DELETE FROM Wishlists
+    WHERE UserId = @UserId AND ProductId = @ProductId;
+END
+
+
+
+
+CREATE PROCEDURE sp_GetWishlistByUser
+    @UserId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        w.WishlistId,
+        p.ProductId,
+        p.Name,
+        p.Price,
+        p.Images
+    FROM Wishlists w
+    INNER JOIN Products p ON w.ProductId = p.ProductId
+    WHERE w.UserId = @UserId
+    ORDER BY w.Created_At DESC;
+END
+
+exec sp_GetWishlistByUser 2

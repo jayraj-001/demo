@@ -209,3 +209,35 @@ BEGIN
     WHERE c.User_Id = @UserId
       AND oi.OrderId = @OrderId;
 END
+
+
+
+
+CREATE PROCEDURE [dbo].[sp_GetInvoiceByOrderId]
+    @OrderId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        o.OrderId,
+        u.Name,
+		u.Address,
+        u.Email,
+        o.TotalAmount,
+        o.CreatedAt,
+        o.PaymentStatus
+    FROM Orders o
+    INNER JOIN Users u ON o.UserId = u.UserId
+    WHERE o.OrderId = @OrderId;
+
+
+    SELECT
+        p.Name,
+        oi.Quantity,
+        oi.Price,
+        (oi.Quantity * oi.Price) AS SubTotal
+    FROM OrderItems oi
+    INNER JOIN Products p ON oi.ProductId = p.ProductId
+    WHERE oi.OrderId = @OrderId;
+END

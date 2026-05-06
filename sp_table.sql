@@ -562,3 +562,23 @@ BEGIN
 END
 
 exec sp_GetWishlistByUser 2
+
+
+select * from Orders
+
+CREATE PROCEDURE [dbo].[sp_GetOrdersByUser]
+    @UserId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        o.OrderId,
+        o.TotalAmount,
+        o.PaymentStatus,
+        o.Status,
+        o.CreatedAt
+    FROM Orders o
+    WHERE o.UserId = @UserId
+    ORDER BY o.CreatedAt DESC;
+END

@@ -407,7 +407,7 @@ END
 
 
 
-CREATE PROCEDURE [dbo].[sp_GetInvoiceByOrderId]
+ALTER PROCEDURE [dbo].[sp_GetInvoiceByOrderId]
     @OrderId INT
 AS
 BEGIN
@@ -420,9 +420,11 @@ BEGIN
         u.Email,
         o.TotalAmount,
         o.CreatedAt,
-        o.PaymentStatus
+        o.PaymentStatus,
+		p.TransactionId
     FROM Orders o
     INNER JOIN Users u ON o.UserId = u.UserId
+	INNER JOIN Payments p ON p.OrderId = o.OrderId
     WHERE o.OrderId = @OrderId;
 
 

@@ -213,8 +213,9 @@ END
 
 
 
-CREATE PROCEDURE [dbo].[sp_GetInvoiceByOrderId]
-    @OrderId INT
+ALTER PROCEDURE [dbo].[sp_GetInvoiceByOrderId]
+    @OrderId INT,
+	@UserId INT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -226,10 +227,13 @@ BEGIN
         u.Email,
         o.TotalAmount,
         o.CreatedAt,
-        o.PaymentStatus
+        o.PaymentStatus,
+		p.TransactionId
     FROM Orders o
     INNER JOIN Users u ON o.UserId = u.UserId
-    WHERE o.OrderId = @OrderId;
+	INNER JOIN Payments p ON p.OrderId = o.OrderId
+    WHERE o.OrderId = @OrderId
+	AND o.UserId =@UserId;
 
 
     SELECT
@@ -239,5 +243,9 @@ BEGIN
         (oi.Quantity * oi.Price) AS SubTotal
     FROM OrderItems oi
     INNER JOIN Products p ON oi.ProductId = p.ProductId
-    WHERE oi.OrderId = @OrderId;
+        INNER JOIN Orders o
+        ON oi.OrderId = o.OrderId
+
+    WHERE oi.OrderId = @OrderId
+      AND o.UserId = @UserId;
 END
